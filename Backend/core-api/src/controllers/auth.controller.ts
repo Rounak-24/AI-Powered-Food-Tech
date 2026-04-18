@@ -12,8 +12,8 @@ const cookieOptions = {
 }
 
 export const registerUser = asyncHandler(async (req:Request, res:Response)=>{
-    const {fullname, email, password, role, phone} = req.body
-    if(!email || !password || !fullname || !role)return res.status(400).json({
+    const {name, email, password} = req.body
+    if(!email || !password || !name)return res.status(400).json({
         "Error":"User credentials are required"
     })
 
@@ -24,11 +24,9 @@ export const registerUser = asyncHandler(async (req:Request, res:Response)=>{
     }
 
     const newUser = new user({
-        fullname:fullname as string,
+        fullname:name as string,
         password:password as string,
-        email:email as string,
-        role:role as string,
-        phone:phone as string || undefined
+        email:email as string
     })
 
     const saveuser = await newUser.save()

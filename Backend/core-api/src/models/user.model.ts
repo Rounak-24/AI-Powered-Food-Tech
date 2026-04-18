@@ -17,8 +17,9 @@ export interface IUser extends Document {
     createdAt: Date;
     updatedAt: Date;
     familyMembers: IFamilyMember[]; // Embedded Array
+    avatar:string;
 
-    refreshToken:String;
+    refreshToken:string;
 }
 
 const familyMemberSchema = new Schema<IFamilyMember>({
@@ -54,7 +55,8 @@ const userSchema = new Schema<IUser>({
         type: String, 
         required: true 
     },
-
+    
+    avatar:{type:String},
     familyMembers: [familyMemberSchema],
 
     refreshToken:{type:String}
