@@ -31,7 +31,7 @@ SYSTEM_PROMPT = """
 """
 
 
-def get_file_data(url:str):
+def get_image_data(url:str):
     response = client.chat.completions.create(
         model="gemini-3-flash-preview",
         messages=[
