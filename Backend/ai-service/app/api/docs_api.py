@@ -4,9 +4,7 @@ from app.rag.index import text_to_embeddings
 import tempfile
 import os
 
-
 router = APIRouter()
-
 
 @router.post("/upload-pdf")
 async def upload_pdf(
@@ -25,7 +23,7 @@ async def upload_pdf(
             tmp.write(content)
             tmp_path = tmp.name
 
-        text_to_embeddings(
+        await text_to_embeddings(
             file_path = tmp_path,
             user_id = user_id,
         )
