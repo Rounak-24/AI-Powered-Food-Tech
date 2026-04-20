@@ -1,4 +1,4 @@
-from app.services.qdrant import vector_store
+from app.rag.index import vector_store
 
 async def get_vector_search_result(user_id:str, user_query:str, filename:str):
     return await vector_store.similarity_search(

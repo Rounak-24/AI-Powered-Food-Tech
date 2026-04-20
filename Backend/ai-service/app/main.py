@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 from app.api.docs_api import router
 import socketio
+import app.db.mongo as mongo
 import uvicorn
 import os
 load_dotenv()
@@ -12,7 +13,10 @@ app = FastAPI(
     description="FastAPI server handling RAG, Mem0, and Socket.IO Chat",
     version="1.0.0"
 )
-sio = socketio.AsyncServer()
+sio = socketio.AsyncServer(
+    async_mode='asgi', 
+    cors_allowed_origins='*'
+)
 
 app.add_middleware(CORSMiddleware,
     allow_origins=[os.getenv("INTERNAL_BASE_URL")], 
@@ -21,7 +25,7 @@ app.add_middleware(CORSMiddleware,
     allow_headers=["*"]
 )
 
-app.include_router(router=router, prefix="api/v1/docs")
+app.include_router(router=router, prefix="/api/v1/docs")
 
 @app.get('/api/ai-server-health-check', tags=["System"])
 async def handle_health_check():

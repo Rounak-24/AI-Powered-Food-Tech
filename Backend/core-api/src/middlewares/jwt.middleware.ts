@@ -12,7 +12,7 @@ export const jwtAuthMiddleware = async (req:Request, res:Response, next:NextFunc
         )
 
         const token:string = auth.split(' ')[1]
-        const decoded = jwt.verify(token,process.env.ACCESS_TOKEN_SECRET_KEY as string) as IAccessDecodedPayload
+        const decoded = jwt.verify(token,process.env.JWT_SECRET_KEY as string) as IAccessDecodedPayload
 
         if(!decoded.isActive){
             return res.status(403).json(

@@ -24,8 +24,8 @@ export const registerUser = asyncHandler(async (req:Request, res:Response)=>{
     }
 
     const newUser = new user({
-        fullname:name as string,
-        password:password as string,
+        name:name as string,
+        passwordHash:password as string,
         email:email as string
     })
 
@@ -98,7 +98,7 @@ export const refreshAccessToken = asyncHandler(async (req:Request, res:Response)
     const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET_KEY as Secret) as IRefreshDecodedPayload
     
     const User:any = await user.findById(decoded._id).select('-password');
-    if(!User) return res.status(401).json({err:'Invalid token'});
+    if(!User || User.refreshToken !== token) return res.status(401).json({err:'Invalid token'});
     
     const newAccessToken = User.generateAccessToken();
     const newRefreshToken = User.generateRefreshToken();

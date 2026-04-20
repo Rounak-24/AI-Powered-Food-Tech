@@ -9,6 +9,8 @@ MONGO_URL = os.getenv("MONGO_URI")
 mongo_client = AsyncIOMotorClient(MONGO_URL)
 db = mongo_client.get_database()
 
+print("connected to mongoDB")
+
 # Collections
 conversations_collection = db.get_collection("conversations")
 messages_collection = db.get_collection("messages")
