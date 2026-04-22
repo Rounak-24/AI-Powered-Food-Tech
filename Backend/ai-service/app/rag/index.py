@@ -18,12 +18,12 @@ async def text_to_embeddings(file_path:str, user_id:str):
     docs = loader.load()
     # print(docs)
 
-    text_splitter = await RecursiveCharacterTextSplitter(
+    text_splitter = RecursiveCharacterTextSplitter(
         chunk_size = 1000,
         chunk_overlap = 400
     )
 
-    chunks = await text_splitter.split_documents(
+    chunks = text_splitter.split_documents(
         documents = docs
     )
 

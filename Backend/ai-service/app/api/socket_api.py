@@ -1,9 +1,14 @@
-from app.main import sio
-from app.db.mongo import conversations_collection, messages_collection
+from app.models.chat_model import conversations_collection, messages_collection
 from bson import ObjectId
 import socketio
 import jwt
+import urllib.parse
 import os
+
+sio = socketio.AsyncServer(
+    async_mode='asgi', 
+    cors_allowed_origins='*'
+)
 
 JWT_SECRET = os.getenv("JWT_SECRET_KEY")
 
@@ -17,11 +22,16 @@ def serialize_mongo(doc):
 
 @sio.on("connect")
 async def connect(sid, environ, auth):
-    if not auth or "token" not in auth:
-        raise socketio.exceptions.ConnectionRefusedError("No token")
+    token = auth.get("token") if auth else None
+
+    if not token:
+        query_string = environ.get("QUERY_STRING", "")
+        parsed_params = urllib.parse.parse_qs(query_string)
+        if "token" in parsed_params:
+            token = parsed_params["token"][0]
     
     try:
-        payload = jwt.decode(auth["token"], JWT_SECRET)
+        payload = jwt.decode(token, JWT_SECRET, ["HS256"])
         await sio.save_session(sid, {
             "user_id": payload.get("_id")
         })
@@ -36,14 +46,23 @@ async def connect(sid, environ, auth):
 async def fetch_conversations(sid):
     session = await sio.get_session(sid)
 
-    cursor = conversations_collection.find({
-        "user_id": ObjectId(session["user_id"])
-    }).sort("updated_at", -1)
+    if not session:
+        raise socketio.exceptions.ConnectionRefusedError("Unauthorized")
 
-    conversations = await cursor.to_list(length=50)
-    await sio.emit("conversations_list", {
-        "conversations": [serialize_mongo(c) for c in conversations]
-    }, room=sid)
+    try:
+        print(session)
+        cursor = conversations_collection.find({
+            "user_id": ObjectId(session["user_id"])
+        }).sort("updated_at", -1)
+
+        conversations = await cursor.to_list(length=50)
+        await sio.emit("conversations_list", {
+            "conversations": [serialize_mongo(c) for c in conversations]
+        }, room=sid)
+
+    except Exception as e:
+        print(f"Error in fetch_conversations: {e}")
+        raise socketio.exceptions.ConnectionRefusedError("Internal Server Error in fetch_conversations")
 
 
 @sio.on("fetch_messages")

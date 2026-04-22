@@ -16,7 +16,7 @@ async def verify_jwt(authorization: str = Header(...)) -> str:
     token = authorization.split(" ")[1]
     
     try:
-        payload = jwt.decode(token, JWT_SECRET)
+        payload = jwt.decode(token, JWT_SECRET,algorithms=["HS256"])
         user_id = payload.get("_id")
         
         if not user_id:

@@ -1,7 +1,7 @@
-from openai import OpenAI
+from openai import AsyncOpenAI
 import os
 
-chat_client = OpenAI(
+chat_client = AsyncOpenAI(
     api_key = os.getenv("GEMINI_API_KEY"),
     base_url = os.getenv("GEMINI_BASE_URL")
 )

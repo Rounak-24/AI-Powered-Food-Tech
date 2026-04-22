@@ -57,6 +57,7 @@ async def search_in_memory(user_id, user_query, conversation_id):
     
     except Exception as e:
         print("Error occured while searching for memory", e)
+        return []
 
 
 async def add_memory(user_id:str, user_query:str, conversation_id, ai_response):
@@ -76,6 +77,7 @@ async def add_memory(user_id:str, user_query:str, conversation_id, ai_response):
 
     except Exception as e:
         print("Error occured while adding for memory", e)
+        return None
 
 
 

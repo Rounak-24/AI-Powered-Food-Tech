@@ -1,24 +1,39 @@
-from app.main import sio
-from app.db.mongo import conversations_collection, get_chat_history, save_chat_to_db
-from app.services.mem import search_in_memory, add_memory
+from app.api.socket_api import sio
+from app.models.chat_model import conversations_collection, get_chat_history, save_chat_to_db
 from app.agents.chat_agent import chat_client, CHAT_AGENT_SYSTEM_PROMPT
 from app.agents.vision_agent import get_image_data
 from app.rag.retrieve import get_vector_search_result
+from app.services.mem import search_in_memory, add_memory
 from app.services.internal_service import get_data_from_inventory, get_items_tobe_expire
+from json import dumps,loads, JSONDecodeError
 from bson import ObjectId
-from json import dumps,loads
 
 
 @sio.on("ask_ai")
 async def ask_ai_handler(sid, data):
+
+    if not sid:
+        return await sio.emit("ai_error", {
+            "error": "No sid provided"
+        }, room=sid)
+
+    if not data:
+        return await sio.emit("ai_error", {
+            "error": "No data provided"
+        }, room=sid)
+
     session = await sio.get_session(sid)
     user_id = session.get("user_id")
     user_message = data.get("message")
     image_url = data.get("url")
     file_name = data.get("filename")
     conversation_id_str = data.get("conversation_id")
+    # print(user_id, user_message, image_url, file_name, conversation_id_str)
 
-    if not user_message: return
+    if not user_message: 
+        return await sio.emit("ai_error", {
+            "error": "No message provided"
+        }, room=sid)
 
     try:
         if not conversation_id_str:
@@ -36,15 +51,16 @@ async def ask_ai_handler(sid, data):
         else:
             conversation_id = ObjectId(conversation_id_str)
 
-        chat_history = await get_chat_history(conversation_id=conversation_id)
-        ai_result = ""
+        chat_history = get_chat_history(conversation_id=conversation_id)
+        final_output = ""
+        ai_response = None
 
         while True:
-
+            
             memories = await search_in_memory(
                 user_id=user_id,
                 user_query=user_message,
-                conversation_id=conversation_id
+                conversation_id=str(conversation_id)
             )
 
             SYSTEM_PROMPT = f"""
@@ -71,20 +87,17 @@ async def ask_ai_handler(sid, data):
             )
 
             current_output = response.choices[0].message.content
-            parsed_output = loads(current_output)
             
-            if isinstance(parsed_output, list):
-                parsed_output = parsed_output[len(parsed_output)-1]
+            try:
+                parsed_output = loads(current_output)
 
-            step = parsed_output.get("step")
-
-            sio.emit("ai_status",{
-                "status":f"Step:{step}, content:{parsed_output.get("content")}"
-            },room=sid)
-
-            if "OUTPUT" in step:
-                sio.emit("ai_complete",{"done":"true"},room=sid)
-                ai_result = parsed_output.get("content")
+            except JSONDecodeError:
+                await sio.emit("ai_status", {
+                    "status": f"Step:OUTPUT, content:{current_output}"
+                }, room=sid)
+                
+                await sio.emit("ai_complete", {"done": "true"}, room=sid)
+                final_output = current_output
                 break
 
             tool = parsed_output.get("tool")
@@ -110,8 +123,6 @@ async def ask_ai_handler(sid, data):
             elif "get_items_tobe_expire" in tool:
                 tool_data = get_items_tobe_expire(user_id=user_id)
 
-
-            ai_response = None
             if(tool):
                 ai_response = {
                     "role":"assistant",
@@ -131,17 +142,17 @@ async def ask_ai_handler(sid, data):
                     }
                 }
 
-            await add_memory(
-                user_id=user_id,
-                user_query=user_message,
-                conversation_id=conversation_id,
-                ai_response=ai_response
-            )
+        await add_memory(
+            user_id=user_id,
+            user_query=user_message,
+            conversation_id=conversation_id,
+            ai_response=ai_response
+        )
 
         await save_chat_to_db(
             conversation_id=conversation_id,
             user_message=user_message,
-            ai_result=ai_result
+            ai_result=final_output
         )
 
 

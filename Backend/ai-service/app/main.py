@@ -2,8 +2,10 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 from app.api.docs_api import router
+from app.api.socket_api import sio
+from app.api.ask_ai import ask_ai_handler
+import app.db.mongo 
 import socketio
-import app.db.mongo as mongo
 import uvicorn
 import os
 load_dotenv()
@@ -12,10 +14,6 @@ app = FastAPI(
     title="AI Powered Food Tech Backend",
     description="FastAPI server handling RAG, Mem0, and Socket.IO Chat",
     version="1.0.0"
-)
-sio = socketio.AsyncServer(
-    async_mode='asgi', 
-    cors_allowed_origins='*'
 )
 
 app.add_middleware(CORSMiddleware,
