@@ -59,9 +59,11 @@ async def save_chat_to_db(conversation_id:str,user_message:str,ai_result):
     return True
 
 
-async def get_chat_history(conversation_id:Any|ObjectId):
+async def get_chat_history(conversation_id:str):
+    conv_obj_id = ObjectId(conversation_id)
+
     cursor = messages_collection.find({
-        "conversation_id": conversation_id
+        "conversation_id": conv_obj_id
     }).sort("created_at", -1).limit(6)
 
     recent = await cursor.to_list(length=6)
