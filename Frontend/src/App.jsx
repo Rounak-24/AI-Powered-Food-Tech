@@ -83,7 +83,7 @@ function App() {
       }
       setIsTyping(false);
       setActiveToolStatus(null);
-      
+
       // Mark the last AI message as no longer streaming
       setMessages((prev) => {
         const newMessages = [...prev];
@@ -172,7 +172,7 @@ function App() {
     const payload = {
       message: inputMessage.trim(),
     };
-    
+
     if (uploadedFile?.filename) payload.filename = uploadedFile.filename;
     if (uploadedFile?.url) payload.url = uploadedFile.url;
     if (conversationId) payload.conversation_id = conversationId;
@@ -189,8 +189,8 @@ function App() {
       {/* Header */}
       <header className="bg-white border-b border-sage-200 py-4 px-6 shadow-sm flex items-center justify-between sticky top-0 z-10">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-citrus-500 rounded-full flex items-center justify-center text-white shadow-md">
-            <span className="text-xl">🌿</span>
+          <div className="w-10 h-10 bg-lightgreen rounded-full flex items-center justify-center text-white shadow-md">
+            <span className="text-xl">🌱</span>
           </div>
           <div>
             <h1 className="text-xl font-bold text-sage-900 tracking-tight">AI Food Tech</h1>
@@ -198,22 +198,22 @@ function App() {
           </div>
         </div>
         <div className="flex items-center gap-2">
-           {socket?.connected ? (
-             <span className="flex items-center gap-1.5 text-xs font-medium text-sage-600 bg-sage-100 px-2.5 py-1 rounded-full">
-               <span className="w-2 h-2 rounded-full bg-green-500"></span> Connected
-             </span>
-           ) : (
-             <span className="flex items-center gap-1.5 text-xs font-medium text-sage-600 bg-sage-100 px-2.5 py-1 rounded-full">
-               <span className="w-2 h-2 rounded-full bg-red-400"></span> Disconnected
-             </span>
-           )}
+          {socket?.connected ? (
+            <span className="flex items-center gap-1.5 text-xs font-medium text-sage-600 bg-sage-100 px-2.5 py-1 rounded-full">
+              <span className="w-2 h-2 rounded-full bg-green-500"></span> Connected
+            </span>
+          ) : (
+            <span className="flex items-center gap-1.5 text-xs font-medium text-sage-600 bg-sage-100 px-2.5 py-1 rounded-full">
+              <span className="w-2 h-2 rounded-full bg-red-400"></span> Disconnected
+            </span>
+          )}
         </div>
       </header>
 
       {/* Chat Area */}
       <main className="flex-1 overflow-y-auto p-4 md:p-6 scrollbar-thin">
         <div className="max-w-3xl mx-auto space-y-6">
-          
+
           {messages.length === 0 && (
             <div className="flex flex-col items-center justify-center h-full mt-20 text-center space-y-4">
               <div className="w-20 h-20 bg-citrus-100 rounded-full flex items-center justify-center mb-2">
@@ -232,13 +232,12 @@ function App() {
               className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'} animate-in fade-in slide-in-from-bottom-2 duration-300`}
             >
               <div
-                className={`max-w-[85%] md:max-w-[75%] rounded-2xl p-4 shadow-sm ${
-                  msg.sender === 'user'
+                className={`max-w-[85%] md:max-w-[75%] rounded-2xl p-4 shadow-sm ${msg.sender === 'user'
                     ? 'bg-citrus-500 text-white rounded-tr-sm'
                     : msg.sender === 'system'
-                    ? 'bg-red-50 text-red-800 border border-red-200'
-                    : 'bg-white border border-sage-200 text-sage-800 rounded-tl-sm'
-                }`}
+                      ? 'bg-red-50 text-red-800 border border-red-200'
+                      : 'bg-white border border-sage-200 text-sage-800 rounded-tl-sm'
+                  }`}
               >
                 {/* Render attached file in user message */}
                 {msg.file && (
@@ -249,7 +248,7 @@ function App() {
                     </span>
                   </div>
                 )}
-                
+
                 {msg.sender === 'ai' ? (
                   <div className="prose prose-sage max-w-none prose-p:leading-relaxed prose-pre:bg-sage-100 prose-pre:text-sage-900">
                     <ReactMarkdown>{msg.text}</ReactMarkdown>
@@ -275,7 +274,7 @@ function App() {
               </div>
             </div>
           )}
-          
+
           <div ref={messagesEndRef} className="h-4" />
         </div>
       </main>
@@ -290,7 +289,7 @@ function App() {
               <span className="text-sm text-sage-700 font-medium truncate max-w-[200px]">
                 {uploadedFile.filename}
               </span>
-              <button 
+              <button
                 onClick={removeUploadedFile}
                 className="ml-2 text-sage-400 hover:text-red-500 transition-colors"
                 aria-label="Remove file"
@@ -318,7 +317,7 @@ function App() {
               >
                 {isUploading ? <Loader2 size={20} className="animate-spin" /> : <Camera size={20} />}
               </button>
-              
+
               <input
                 type="text"
                 value={inputMessage}
@@ -328,7 +327,7 @@ function App() {
                 className="w-full bg-sage-50 border border-sage-200 text-sage-900 rounded-2xl py-3 pl-12 pr-4 focus:outline-none focus:ring-2 focus:ring-citrus-300 focus:border-citrus-300 transition-all placeholder:text-sage-400 font-medium disabled:opacity-70"
               />
             </div>
-            
+
             <button
               type="submit"
               disabled={isTyping || (!inputMessage.trim() && !uploadedFile)}
@@ -339,7 +338,7 @@ function App() {
             </button>
           </form>
           <div className="mt-2 text-center">
-             <span className="text-xs text-sage-400">AI can make mistakes. Consider verifying important nutritional information.</span>
+            <span className="text-xs text-sage-400">AI can make mistakes. Consider verifying important nutritional information.</span>
           </div>
         </div>
       </footer>
