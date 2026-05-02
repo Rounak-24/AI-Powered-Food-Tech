@@ -1,5 +1,5 @@
 import multer from "multer"
-
+import path from "path"
 const storage = multer.diskStorage({
     destination: function (req,file,cb){
         cb(null,'./public/temp')
@@ -7,7 +7,10 @@ const storage = multer.diskStorage({
 
     filename: function (req,file, cb){
         const uniqueSuffix = Date.now() + '-' + Math.random()*2;
-        cb(null, file.originalname + '-' + uniqueSuffix);
+        const ext = path.extname(file.originalname);
+        const name = path.basename(file.originalname, ext);
+
+        cb(null, name + "-" + uniqueSuffix + ext);
     }
 })
 

@@ -16,8 +16,8 @@ import { jwtAuthMiddleware } from "../middlewares/jwt.middleware.js"
 
 const router=Router()
 
-router.post("/upload",upload.single("file"),uploadFile)
-router.delete("/upload/:public_id",deleteFile)
+router.post("/upload",jwtAuthMiddleware,upload.single("file"),uploadFile)
+router.delete("/delete/:public_id",jwtAuthMiddleware,deleteFile)
 
 router.post("/add-item",jwtAuthMiddleware,addItem)
 router.get("/all",jwtAuthMiddleware,getAllItem)
