@@ -6,6 +6,7 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import mongoose from "mongoose";
 import { uploadOnCloudinary,deleteFromCloudinary } from "../services/cloudinary.js";
+import { Upload } from "../models/upload.model.js"; 
 
 export const addItem=asyncHandler(async(req,res)=>{
     const{name,category,quantity,expiryDate,isEstimatedExpiry,source,cost}=req.body
@@ -24,7 +25,8 @@ export const addItem=asyncHandler(async(req,res)=>{
         isEstimatedExpiry:isEstimatedExpiry||false,
         source,
         status:"AVAILABLE",
-        cost:cost||0
+        cost:cost||0,
+
     })
     res.status(201).json(new ApiResponse(201,newItem,"Item added"))
 })
@@ -110,23 +112,42 @@ export const getExpiredItems=asyncHandler(async(req,res)=>{
     res.status(200).json(new ApiResponse(200,expiredItems,"Expired Items fetched"))
 })
 
-export const uploadFile=asyncHandler(async(req,res)=>{
-    const localFilePath=req.file?.path;
-    if(!localFilePath){
-        throw new ApiError(404,"No File provided")
-    }
-    const cloudinaryResponse=await uploadOnCloudinary(localFilePath)
-    if(!cloudinaryResponse){
-        throw new ApiError(500,"Failed to upload file")
-    }
-    res.status(200).json(new ApiResponse(200,{url:cloudinaryResponse.url,public_id:cloudinaryResponse.public_id},"File uploaded successfully"))
-})
+export const uploadFile = asyncHandler(async (req, res) => {
+    const localFilePath = req.file?.path;
+    if (!localFilePath) throw new ApiError(400, "No file provided");
 
-export const deleteFile=asyncHandler(async(req,res)=>{
-    const public_id=req.params.public_id as string
-    if(!public_id){
-        throw new ApiError(404,"public_id is required")
-    }
-    await deleteFromCloudinary(public_id)
-    res.status(200).json(new ApiResponse(200,null,"deleted successfully"))
-})
+    const cloudinaryResponse = await uploadOnCloudinary(localFilePath);
+    if (!cloudinaryResponse) throw new ApiError(500, "Failed to upload file");
+
+    await Upload.create({
+        user: req.user._id,
+        public_id: cloudinaryResponse.public_id,
+        resource_type: cloudinaryResponse.resource_type,
+        url: cloudinaryResponse.url,
+    });
+
+    res.status(200).json(new ApiResponse(200, {
+        url: cloudinaryResponse.url,
+        public_id: cloudinaryResponse.public_id,
+        resource_type: cloudinaryResponse.resource_type,
+    }, "File uploaded successfully"));
+});
+
+export const deleteFile = asyncHandler(async (req, res) => {
+    const public_id = req.params.public_id as string;
+    if (!public_id) throw new ApiError(400, "public_id is required");
+
+    const uploadRecord = await Upload.findOne({
+        public_id,
+        user: req.user._id
+    });
+
+    if (!uploadRecord) throw new ApiError(404, "File not found");
+
+    const response = await deleteFromCloudinary(public_id, uploadRecord.resource_type);
+    if (!response) throw new ApiError(500, "Failed to delete file from cloudinary");
+
+    await Upload.findByIdAndDelete(uploadRecord._id);
+
+    res.status(200).json(new ApiResponse(200, null, "Deleted successfully"));
+});

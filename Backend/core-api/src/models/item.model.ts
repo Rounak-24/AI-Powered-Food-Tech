@@ -17,7 +17,8 @@ export interface IFoodItem extends Document {
     status: 'AVAILABLE' | 'CONSUMED' | 'WASTED';
     actionDate?: Date;              // The date the item was eaten or thrown away
     source: 'MANUAL' | 'IMAGE' | 'PDF'; // How it was added
-    // embedding?: number[];           
+    // embedding?: number[];
+    
 }
 
 const foodItemSchema = new Schema<IFoodItem>({
