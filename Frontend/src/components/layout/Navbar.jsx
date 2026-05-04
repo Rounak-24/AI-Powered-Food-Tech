@@ -5,6 +5,9 @@ import Features from '../home/Features';
 import Impact from '../home/Impact';
 import Testimonials from '../home/Testimonials';
 import Hero from '../home/Hero';
+import { Link } from "react-router-dom";
+
+<Link to="/chat">AI Chat</Link>
 
 export default function Navbar() {
   const handleScroll = () => {
