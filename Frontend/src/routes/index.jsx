@@ -55,7 +55,15 @@ export default function AppRoutes() {
         path="/scan-fridge"
         element={
           <ProtectedRoute>
-            <ScanFridge/> 
+            <ScanFridge />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/analytics"
+        element={
+          <ProtectedRoute>
+            <Analytics />
           </ProtectedRoute>
         }
       />
