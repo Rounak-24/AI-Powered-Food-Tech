@@ -1,7 +1,7 @@
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from pathlib import Path
-from app.RAG.qdrant import vector_store
+from app.rag.qdrant import vector_store
 
 text_splitter = RecursiveCharacterTextSplitter(
     chunk_size = 500,

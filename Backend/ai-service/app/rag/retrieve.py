@@ -1,4 +1,4 @@
-from app.RAG.qdrant import vector_store
+from app.rag.qdrant import vector_store
 from qdrant_client import models
 
 async def get_vector_search_result(user_id:str, user_query:str, filename:str):

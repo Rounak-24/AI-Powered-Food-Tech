@@ -10,6 +10,8 @@ import About from "../pages/footerallpages/About";
 import FooterFeaturesPage from "../pages/footerallpages/FooterFeaturesPage";
 import Privacy from "../pages/footerallpages/Privacy";
 import ContactPage from "../pages/footerallpages/ContactPage";
+import ScanFridge from "../pages/scan-fridge/ScanFridge";
+import Analytics from "../pages/analytics/Analytics";
 
 export default function AppRoutes() {
   return (

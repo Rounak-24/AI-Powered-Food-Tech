@@ -8,7 +8,10 @@ gemini_embedding_model = GoogleGenerativeAIEmbeddings(
     model = "models/gemini-embedding-001"
 )
 
-client = QdrantClient(url = os.getenv("QDRANT_URL"))
+client = QdrantClient(
+    url = os.getenv("QDRANT_URL"),
+    api_key = os.getenv("QDRANT_API_KEY")
+)
 
 vector_store = QdrantVectorStore(
     client = client,
